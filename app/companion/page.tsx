@@ -2,20 +2,6 @@
 import { useState, useRef, useEffect } from 'react'
 import { Sidebar } from '@/components/layout/Sidebar'
 
-const SYSTEM_PROMPT = `You are SilverCare, a warm and caring AI companion for elderly seniors in Singapore. 
-
-Your personality:
-- Speak naturally using Singlish when in English mode — use lah, lor, hor, aiyo, wah, aiyah naturally
-- Be warm, patient, and encouraging — never condescending
-- Keep replies short — 2 to 3 sentences maximum
-- Ask one simple follow-up question at a time
-- Remember what the senior said earlier in the conversation
-- If they mention pain, sadness, or loneliness, respond with extra warmth
-- Gently suggest seeing a doctor if health concerns come up
-- Never use complex medical words
-
-If responding in Chinese, use simple everyday Mandarin, warm and caring tone.`
-
 const languages = [
   { code: 'en-SG', label: 'English', flag: '🇸🇬' },
   { code: 'zh-CN', label: '普通话', flag: '🇨🇳' },
@@ -47,7 +33,6 @@ export default function Companion() {
   const [langIdx, setLangIdx] = useState(0)
   const [voiceError, setVoiceError] = useState('')
   const [interimText, setInterimText] = useState('')
-  const [ollamaError, setOllamaError] = useState('')
   const endRef = useRef<HTMLDivElement>(null)
   const recognitionRef = useRef<any>(null)
 
@@ -57,41 +42,26 @@ export default function Companion() {
 
   useEffect(() => { endRef.current?.scrollIntoView({ behavior: 'smooth' }) }, [msgs])
 
-  const callOllama = async (messages: {role: string, content: string}[]) => {
-    const langInstruction = isChinese 
-      ? 'Please respond in simple Mandarin Chinese.' 
-      : 'Please respond in English with natural Singlish.'
-    
-    const response = await fetch('http://localhost:11434/api/chat', {
+  const callAI = async (messages: {role: string, content: string}[]) => {
+    const res = await fetch('/api/chat', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        model: 'llama3',
-        stream: false,
-        messages: [
-          { role: 'system', content: SYSTEM_PROMPT + '\n\n' + langInstruction },
-          ...messages
-        ]
-      })
+      body: JSON.stringify({ messages, language: lang.code })
     })
-    
-    if (!response.ok) throw new Error('Ollama request failed')
-    const data = await response.json()
-    return data.message?.content || 'Sorry, I could not get a response.'
+    const data = await res.json()
+    if (data.error) throw new Error(data.error)
+    return data.reply
   }
 
   const send = async () => {
     if (!input.trim() || loading) return
     const userContent = input.trim()
     setInput('')
-    setOllamaError('')
-    
     const newMsgs = [...msgs, { role: 'user', content: userContent }]
     setMsgs(newMsgs)
     setLoading(true)
-
     try {
-      const reply = await callOllama(newMsgs)
+      const reply = await callAI(newMsgs)
       setMsgs(m => [...m, { role: 'assistant', content: reply }])
       if (tts && window.speechSynthesis) {
         const u = new SpeechSynthesisUtterance(reply)
@@ -99,9 +69,8 @@ export default function Companion() {
         u.rate = 0.85
         window.speechSynthesis.speak(u)
       }
-    } catch (err) {
-      setOllamaError('Could not reach Ollama. Make sure ollama serve is running in your terminal.')
-      setMsgs(m => [...m, { role: 'assistant', content: 'Aiyoh sorry ah, I having a small problem. Give me a moment and try again lah!' }])
+    } catch {
+      setMsgs(m => [...m, { role: 'assistant', content: 'Aiyoh sorry ah, give me a moment and try again lah!' }])
     } finally {
       setLoading(false)
     }
@@ -130,8 +99,7 @@ export default function Companion() {
       setListening(false)
       setInterimText('')
       if (e.error === 'not-allowed') setVoiceError('Mic blocked — allow microphone in browser settings.')
-      else if (e.error === 'no-speech') setVoiceError('No speech heard. Try again.')
-      else setVoiceError('Voice error. Try again.')
+      else setVoiceError('Could not hear you. Try again.')
     }
     recognition.onend = () => { setListening(false); setInterimText('') }
     recognitionRef.current = recognition
@@ -146,9 +114,7 @@ export default function Companion() {
       <main className="main-content fade-up">
         <div className="page-header">
           <div className="page-title serif">AI <strong>Companion</strong></div>
-          <div className="page-subtitle">
-            Powered by Llama 3 via Ollama — real AI, runs locally, fully private.
-          </div>
+          <div className="page-subtitle">Powered by Claude AI — multilingual, warm, and caring.</div>
         </div>
 
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 300px', gap: 16 }}>
@@ -157,8 +123,8 @@ export default function Companion() {
               <div className="chat-header">
                 <div className="chat-avatar">AI</div>
                 <div style={{ flex: 1 }}>
-                  <div style={{ fontSize: 14, fontWeight: 600 }}>SilverCare — Llama 3</div>
-                  <div className="chat-status">● Powered by local Ollama AI</div>
+                  <div style={{ fontSize: 14, fontWeight: 600 }}>SilverCare Assistant</div>
+                  <div className="chat-status">● Powered by Claude AI</div>
                 </div>
                 <div style={{ display: 'flex', gap: 4 }}>
                   {languages.map((l, i) => (
@@ -183,11 +149,7 @@ export default function Companion() {
                 {loading && (
                   <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start' }}>
                     <div className="bubble-label">SilverCare</div>
-                    <div className="bubble-ai" style={{ display: 'flex', gap: 4, alignItems: 'center' }}>
-                      <span style={{ animation: 'wave 1s ease infinite', display: 'inline-block' }}>●</span>
-                      <span style={{ animation: 'wave 1s ease 0.2s infinite', display: 'inline-block', color: 'var(--text-3)' }}>●</span>
-                      <span style={{ animation: 'wave 1s ease 0.4s infinite', display: 'inline-block', color: 'var(--text-3)' }}>●</span>
-                    </div>
+                    <div className="bubble-ai" style={{ color: '#9CA3AF', fontStyle: 'italic' }}>Thinking...</div>
                   </div>
                 )}
                 <div ref={endRef} />
@@ -204,12 +166,6 @@ export default function Companion() {
               {voiceError && (
                 <div style={{ margin: '6px 0', padding: '10px 14px', background: '#FFFBEB', border: '1px solid #FCD34D', borderRadius: 12, fontSize: 12, color: '#92400E' }}>
                   ⚠️ {voiceError}
-                </div>
-              )}
-
-              {ollamaError && (
-                <div style={{ margin: '6px 0', padding: '10px 14px', background: '#FFF5F5', border: '1px solid #FCA5A5', borderRadius: 12, fontSize: 12, color: '#DC2626' }}>
-                  🔴 {ollamaError}
                 </div>
               )}
 
@@ -230,11 +186,10 @@ export default function Companion() {
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
             <div className="card card-sm" style={{ background: 'linear-gradient(135deg, #EBF7F4, #E0F2FE)', border: '1px solid #B8DDD8' }}>
-              <div className="card-title">🤖 Real AI active</div>
+              <div className="card-title">🤖 AI Status</div>
               <div style={{ fontSize: 12.5, color: 'var(--text-2)', lineHeight: 1.8 }}>
-                <div>Model: <strong>Llama 3 (8B)</strong></div>
-                <div>Running: <strong style={{ color: '#16A34A' }}>● Local Ollama</strong></div>
-                <div>Privacy: <strong>100% on-device</strong></div>
+                <div>Model: <strong>Claude Sonnet</strong></div>
+                <div>Running: <strong style={{ color: '#16A34A' }}>● Cloud AI</strong></div>
                 <div>Languages: <strong>EN · 中文 · 粤语</strong></div>
               </div>
             </div>
@@ -244,7 +199,7 @@ export default function Companion() {
               <div style={{ fontSize: 12.5, color: 'var(--text-2)', lineHeight: 1.9 }}>
                 <div>• Use Chrome for best accuracy</div>
                 <div>• Pick language before speaking</div>
-                <div>• Speak clearly, short sentences</div>
+                <div>• Short sentences work best</div>
                 <div style={{ marginTop: 8, padding: '7px 10px', background: 'var(--sage-pale)', borderRadius: 8, color: 'var(--sage)', fontSize: 12, fontWeight: 600 }}>
                   Now: {lang.flag} {lang.label}
                 </div>
