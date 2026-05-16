@@ -1,4 +1,3 @@
-cat > ~/silvercare/app/layout.tsx << 'EOF'
 import type { Metadata } from 'next'
 import './globals.css'
 
@@ -19,4 +18,3 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     </html>
   )
 }
-EOF
