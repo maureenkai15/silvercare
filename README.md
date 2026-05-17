@@ -1,36 +1,62 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+SilverCare 🌿
 
-## Getting Started
+AI-Powered Companion Platform for Elderly Care & Accessibility
 
-First, run the development server:
+About
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+SilverCare is a human-centered digital platform designed to explore how AI and technology can support elderly care, accessibility, and everyday wellbeing.
+Built as a personal project, SilverCare focuses on creating a warm, intuitive, and supportive digital experience while experimenting with modern AI tools, frontend development, and user-centered design principles.
+This project reflects my interest in building technology that feels meaningful, practical, and accessible to real people.
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Features
+- AI-powered companion interface
+- Clean and accessible user experience
+- Responsive modern frontend design
+- Multilingual-friendly interaction concepts
+- Elderly-focused digital accessibility ideas
+- AI assistant workflow experimentation
+- Modern dashboard-inspired interface
 
-## Learn More
+ Tech Stack
+Frontend
+- Next.js
+- React
+- Tailwind CSS
+- ShadCN UI
 
-To learn more about Next.js, take a look at the following resources:
+Backend / AI
+- Python
+- FastAPI
+- Ollama (Local LLMs)
+- LangGraph (planned)
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Other Tools
+- Vercel
+- GitHub
+- Figma
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+ Project Goals
 
-## Deploy on Vercel
+SilverCare was created to explore:
+- Human-centered AI experiences
+- AI-assisted digital companions
+- Accessible and intuitive interfaces
+- Full-stack AI product development
+- Practical applications of emerging AI tools
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+
+Future Improvements
+
+- Voice interaction support
+- AI memory/context retention
+- Medication reminders
+- Agentic AI workflows
+- Smart scheduling assistance
+- Emotional support features
+- Multilingual support
+
+
+GitHub: https://github.com/maureenkai15
