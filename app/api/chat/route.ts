@@ -21,7 +21,7 @@ export async function POST(req: NextRequest) {
         'Authorization': `Bearer ${apiKey}`,
       },
       body: JSON.stringify({
-        model: 'llama3-groq-8b-8192-tool-use-preview',
+        model: 'llama-3.1-8b-instant',
         max_tokens: 300,
         messages: [
           { role: 'system', content: SYSTEM_PROMPT + '\n\n' + langInstruction },
